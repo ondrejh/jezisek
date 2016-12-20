@@ -2,6 +2,9 @@
 
 Dálkově ovládané zvonění ke stromečku. Zvoneček, servo, esp-12e (nodeMcu) ...
 
+##Schéma (zhruba):
+
+![Schéma](/schema/schema.png)
 
 ##Co už to umí:
 
