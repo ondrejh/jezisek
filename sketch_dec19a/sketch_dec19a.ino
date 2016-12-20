@@ -18,7 +18,7 @@ WiFiServer server(80);
 
 Servo myservo;
 int do_something = 0;
-#define SPEED 7
+#define SPEED 6
 int spd = SPEED;
 
 #define PROG_LEN 4

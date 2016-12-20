@@ -4,7 +4,7 @@ clear all;
 hperiod = 0.5;
 tablen = 30;
 dt = hperiod/(tablen-1);
-hamplitude = 15;
+hamplitude = 12;
 
 t = [];
 
