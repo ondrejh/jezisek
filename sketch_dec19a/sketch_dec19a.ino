@@ -18,8 +18,12 @@ WiFiServer server(80);
 
 Servo myservo;
 int do_something = 0;
-#define SPEED 5
+#define SPEED 7
 int spd = SPEED;
+
+#define PROG_LEN 3
+uint32_t progT[PROG_LEN] = {1000,1500,0};
+int progS[PROG_LEN] = {1,10,5};
 
 int SetZero()
 {
@@ -43,6 +47,7 @@ int SetZero()
   case 2:
     if ((millis()-t)>=5000) {
       digitalWrite(LED_PIN, 1);
+      digitalWrite(SERVO_PIN, LOW);
       state=0;
     }
     break;
@@ -59,6 +64,7 @@ int JezisekPrichazi()
   static int state = 0;
   static uint32_t t;
   static int acnt,bcnt;
+  static int progCnt = 0;
   
 
   switch (state) {
@@ -67,6 +73,7 @@ int JezisekPrichazi()
     myservo.attach(SERVO_PIN);
     myservo.write(90);
     t = millis();
+    progCnt = 0;
     state++;
     break;
   case 1:
@@ -94,7 +101,7 @@ int JezisekPrichazi()
       if (acnt>=TABLEN) {
         acnt=0;
         state++;
-        if (bcnt>=5) {
+        if (bcnt>=progS[progCnt]) {
           state++;
         }
       }
@@ -122,14 +129,29 @@ int JezisekPrichazi()
     }
     break;
   case 6:
+    if (progCnt>=(PROG_LEN-1)) {
+      state++;
+    }
+    else {
+      if ((millis()-t)>=progT[progCnt]) {
+        t = millis();
+        progCnt++;
+        acnt=0;
+        bcnt=0;
+        state=1;
+      }
+    }
+    break;
+  case 7:
     if ((millis()-t)>=500) {
       myservo.detach();
       state++;
     }
     break;
-  case 7:
+  case 8:
     if ((millis()-t)>=600) {
       digitalWrite(LED_PIN, 1);
+      digitalWrite(SERVO_PIN, LOW);
       state=0;
     }
     break;
@@ -267,5 +289,7 @@ void initHardware()
   digitalWrite(LED_PIN, HIGH);
   // Don't need to set ANALOG_PIN as input, 
   // that's all it can be.
+  pinMode(SERVO_PIN, OUTPUT);
+  digitalWrite(SERVO_PIN, LOW);
 }
 
