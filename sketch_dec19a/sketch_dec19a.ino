@@ -222,26 +222,53 @@ void loop()
   String s = "HTTP/1.1 200 OK\r\n";
   s += "Content-Type: text/html\r\n\r\n";
   s += "<!DOCTYPE HTML>\r\n<html>\r\n";
+  s += "<head>\r\n<meta charset='UTF-8'>\r\n<meta name='rating' content='general'>\r\n";
+  s += "<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>\r\n";
+  s += "<meta http-equiv='X-UA-Compatible' content='IE=edge'>";
+  s += "<style>\r\n";
+  s += "*, *:before, *:after {-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;}\r\n";
+  s += "html, body {margin: 0; padding: 0; background-color: #eee; color: #333; font-family: Cambria, Arial, serif; font-size: 20px; line-height: 1.5;  text-align: center; min-height: 100%;}\r\n";
+  s += ".main {width: 100%; max-width: 400px; margin: 0 auto; min-height: 100%; padding: 20px;}\r\n";
+  if (val==-1) {
+    s += "ul {margin: 0; padding: 0; list-style: none;}\r\n";
+    s += "li {margin: 0 0 20px; padding: 0; background: none; list-style: none; text-transform: uppercase; width: 100%; max-width: 400px;}\r\n";
+    s += "li a {text-decoration: none; display: block; vertical-align: top; padding: 10px 30px; border: 1px solid #6b1511; text-align: center; color: #fff; border-radius: 10px; text-shadow: 0 1px 1px #000; box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5); background: #830e08; background: -moz-linear-gradient(top, rgba(204,49,43,1) 0%, rgba(131,14,8,1) 100%); background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(204,49,43,1)), color-stop(100%, rgba(131,14,8,1))); background: -webkit-linear-gradient(top, rgba(204,49,43,1) 0%, rgba(131,14,8,1) 100%); background: -o-linear-gradient(top, rgba(204,49,43,1) 0%, rgba(131,14,8,1) 100%); background: -ms-linear-gradient(top, rgba(204,49,43,1) 0%, rgba(131,14,8,1) 100%); background: linear-gradient(to bottom, rgba(204,49,43,1) 0%, rgba(131,14,8,1) 100%); filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cc312b', endColorstr='#830e08', GradientType=0 );}\r\n";
+    s += "li a:hover {background: #830e08; box-shadow: none;}\r\n</style>\r\n";
+  }
+  else {
+    s += "h1 {font-size: 30px; font-weight: 700; line-height: 1.2; color: #000; padding: 0; margin: 50px 0 0;}\r\n</style>\r\n";
+    s += "<meta http-equiv='refresh' content='2;url=index.html'>\r\n";
+  }
+  s += "<title>Ježíšek</title>\r\n</head>\r\n<body>\r\n";
+  s += "<div class='main'>\r\n";
+  
   // If we're setting the LED, print out a message saying we did
   if (val >= 0)
   {
-    s += "LED is now ";
-    s += (val)?"off":"on";
+    s += "<h1>Přepínám LEDku na ";
+    s += (val)?"OFF":"ON";
+    s += "</h1>\r\n";
   }
   else if (val == -2)
   { // If we're reading pins, print out those values:
-    s += "Jezisek prichazi !!!\n";
+    if (do_something == 0)
+      s += "<h1>Ježíšek přichází !!!</h1>\r\n";
+    else
+      s += "<h1>Hele, počkej chvilku ...</h1>\r\n";
   }
   else if (val == -3)
   {
-    s += "Nulova poloha serva\n";
+    if (do_something == 0)
+      s += "<h1>Nastavuji nulovou polohu serva</h1>\r\n";
+    else
+      s += "<h1>Hele, počkej chvilku ...</h1>\r\n";
   }
   else
   {
-    s += "<ul><li><a href='/led/1'>LED ON</a>\n<li><a href='/led/0'>LED OFF</a>\n";
-    s += "<li><a href='/nuluj'>nuluj servo</a>\n<li><a href='/jezisek'>JEZISEK</a></ul>\n";
+    s += "<ul><li><a href='/led/1'>Rozsviť LEDku</a>\r\n<li><a href='/led/0'>Zhasni LEDku</a>\r\n";
+    s += "<li><a href='/nuluj'>Nuluj servo</a>\r\n<li><a href='/jezisek'>JEŽÍŠEK</a></ul>\r\n";
   }
-  s += "</html>\n";
+  s += "</div>\r\n</body>\r\n</html>\r\n";
 
   // Send the response to the client
   client.print(s);
