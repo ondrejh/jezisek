@@ -4,7 +4,7 @@ clear all;
 hperiod = 0.5;
 tablen = 30;
 dt = hperiod/(tablen-1);
-hamplitude = 30;
+hamplitude = 12;
 
 t = [];
 
@@ -14,7 +14,7 @@ p = cos(pi/hperiod*t)*-hamplitude+hamplitude;
 figure()
 plot(t,p,'x')
 
-f = fopen('cos.h','w')
+f = fopen('../sketch_dec19a/cos.h','w')
 s = sprintf('#define TABLEN %d\nconst int ampl = %d;\n',tablen,hamplitude*2);
 fputs(f,s)
 s = sprintf('const uint8_t cosT[%d] = {',length(t));

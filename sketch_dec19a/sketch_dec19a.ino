@@ -18,12 +18,12 @@ WiFiServer server(80);
 
 Servo myservo;
 int do_something = 0;
-#define SPEED 7
+#define SPEED 6
 int spd = SPEED;
 
-#define PROG_LEN 3
-uint32_t progT[PROG_LEN] = {1000,1500,0};
-int progS[PROG_LEN] = {1,10,5};
+#define PROG_LEN 4
+uint32_t progT[PROG_LEN] = {77,99,11,0};
+int progS[PROG_LEN] = {7,14,16,3};
 
 int SetZero()
 {
@@ -87,7 +87,7 @@ int JezisekPrichazi()
   case 2:
     if ((millis()-t)>=spd) {
       t+=spd;
-      myservo.write(90+cosT[acnt++]);
+      myservo.write(90+(cosT[acnt++]/2));
       if (acnt>=TABLEN) {
         acnt=0;
         state++;    
@@ -97,7 +97,7 @@ int JezisekPrichazi()
   case 3:
     if ((millis()-t)>=spd) {
       t+=spd;
-      myservo.write(90+ampl-cosT[acnt++]*2);
+      myservo.write(90+(ampl/2)-cosT[acnt++]);
       if (acnt>=TABLEN) {
         acnt=0;
         state++;
@@ -110,7 +110,7 @@ int JezisekPrichazi()
   case 4:
     if ((millis()-t)>=spd) {
       t+=spd;
-      myservo.write(90-ampl+cosT[acnt++]*2);
+      myservo.write(90-(ampl/2)+cosT[acnt++]);
       if (acnt>=TABLEN) {
         acnt=0;
         bcnt++;
@@ -121,7 +121,7 @@ int JezisekPrichazi()
   case 5:
     if ((millis()-t)>=spd) {
       t+=spd;
-      myservo.write(90-ampl+cosT[acnt++]);
+      myservo.write(90-(ampl/2)+(cosT[acnt++]/2));
       if (acnt>=TABLEN) {
         t=millis();
         state++;
