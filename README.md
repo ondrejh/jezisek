@@ -6,6 +6,7 @@ Založeno na https://learn.sparkfun.com/tutorials/esp8266-thing-hookup-guide/exa
 ##Prototyp:
 
 ![Prototyp zepredu](/schema/prototyp_zepredu.jpg)
+
 a zezadu: https://www.github.com/ondrejh/jezisek/schema/prototyp_zezadu.jpg
 
 ##Interface:
