@@ -87,11 +87,14 @@ void setup()
 void loop() 
 {
   static int do_something = -1;
+  static bool led_on = false;
+  static uint32_t led_millis;
   int i;
   
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client) {
+    
     switch (do_something) {
     case 0:
       if (unset()==0)
@@ -129,6 +132,12 @@ void loop()
       do_something=-1;
       break;
     }
+
+    if ((led_on==true) && ((millis() - led_millis)>100)) {
+      led_on = false;
+      digitalWrite(LED_PIN, 1);    
+    }
+    
     return;
   }
 
@@ -159,10 +168,11 @@ void loop()
   // Otherwise request will be invalid. We'll say as much in HTML
 
   // Set GPIO5 according to the request
-  if (val > 0)
-    digitalWrite(LED_PIN, 1);
-  else
+  if (val >= 0) {
     digitalWrite(LED_PIN, 0);
+    led_on = true;
+    led_millis = millis();
+  }
 
   client.flush();
 
