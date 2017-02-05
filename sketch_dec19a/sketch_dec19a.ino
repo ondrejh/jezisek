@@ -1,7 +1,5 @@
 #include <ESP8266WiFi.h>
-#include <Servo.h>
-
-#include "cos.h"
+#include <Adafruit_NeoPixel.h>
 
 //////////////////////
 // WiFi Definitions //
@@ -12,155 +10,70 @@ const char WiFiAPPSK[] = "sparkfun";
 // Pin Definitions //
 /////////////////////
 const int LED_PIN = D0; // Thing's onboard, blue LED
-const int SERVO_PIN = D2;
 
+#define PIN 4
+#define NUMLEDS 16
+#define INTERVAL 40
 WiFiServer server(80);
 
-Servo myservo;
-int do_something = 0;
-#define SPEED 6
-int spd = SPEED;
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMLEDS, PIN, NEO_GRB + NEO_KHZ800);
 
-#define PROG_LEN 4
-uint32_t progT[PROG_LEN] = {77,99,11,0};
-int progS[PROG_LEN] = {7,14,16,3};
-
-int SetZero()
-{
-  static int state = 0;
-  static uint32_t t;
-
-  switch (state) {
-  case 0:
-    digitalWrite(LED_PIN, 0);
-    myservo.attach(SERVO_PIN);
-    myservo.write(90);
-    t = millis();
-    state++;
-    break;
-  case 1:
-    if ((millis()-t)>=4900) {
-      myservo.detach();
-      state++;
-    }
-    break;
-  case 2:
-    if ((millis()-t)>=5000) {
-      digitalWrite(LED_PIN, 1);
-      digitalWrite(SERVO_PIN, LOW);
-      state=0;
-    }
-    break;
-  default:
-    state=0;
-    break;
+int unset() {
+  static int cnt = 0;
+  static uint32_t my_millis;
+  if (cnt == 0) {
+    cnt = NUMLEDS/2;
+    my_millis = millis()+INTERVAL;
   }
-  
-  return state;
+  if ((millis()-my_millis)>=INTERVAL) {
+    pixels.setPixelColor(NUMLEDS/2 - cnt,0,0,0);
+    cnt--;
+    pixels.setPixelColor(NUMLEDS/2 + cnt,0,0,0);
+    pixels.show();
+    my_millis = millis();
+  }
+  return cnt;
 }
 
-int JezisekPrichazi()
-{
-  static int state = 0;
-  static uint32_t t;
-  static int acnt,bcnt;
-  static int progCnt = 0;
-  
+int set_color(uint8_t r,uint8_t g,uint8_t b) {
+  static int cnt = 0;
+  static uint32_t my_millis;
+  if (cnt == 0) {
+    cnt = NUMLEDS/2;
+    my_millis = millis()+INTERVAL;
+  }
+  if ((millis()-my_millis)>=INTERVAL) {
+    cnt--;
+    pixels.setPixelColor(cnt,r,g,b);
+    pixels.setPixelColor(NUMLEDS-1-cnt,r,g,b);
+    pixels.show();
+    my_millis = millis();
+  }
+  return cnt;
+}
 
-  switch (state) {
-  case 0:
-    digitalWrite(LED_PIN, 0);
-    myservo.attach(SERVO_PIN);
-    myservo.write(90);
-    t = millis();
-    progCnt = 0;
-    state++;
-    break;
-  case 1:
-    if ((millis()-t)>=500) {
-      t = millis();
-      acnt=0;
-      bcnt=0;
-      state++;
-    }
-    break;
-  case 2:
-    if ((millis()-t)>=spd) {
-      t+=spd;
-      myservo.write(90+(cosT[acnt++]/2));
-      if (acnt>=TABLEN) {
-        acnt=0;
-        state++;    
-      }
-    }
-    break;
-  case 3:
-    if ((millis()-t)>=spd) {
-      t+=spd;
-      myservo.write(90+(ampl/2)-cosT[acnt++]);
-      if (acnt>=TABLEN) {
-        acnt=0;
-        state++;
-        if (bcnt>=progS[progCnt]) {
-          state++;
-        }
-      }
-    }
-    break;
-  case 4:
-    if ((millis()-t)>=spd) {
-      t+=spd;
-      myservo.write(90-(ampl/2)+cosT[acnt++]);
-      if (acnt>=TABLEN) {
-        acnt=0;
-        bcnt++;
-        state--;
-      }
-    }
-    break;
-  case 5:
-    if ((millis()-t)>=spd) {
-      t+=spd;
-      myservo.write(90-(ampl/2)+(cosT[acnt++]/2));
-      if (acnt>=TABLEN) {
-        t=millis();
-        state++;
-      }
-    }
-    break;
-  case 6:
-    if (progCnt>=(PROG_LEN-1)) {
-      state++;
+int unset_set_color(uint8_t r,uint8_t g,uint8_t b) {
+  static int cnt = 0;
+  static uint32_t my_millis;
+  if (cnt == 0) {
+    cnt = NUMLEDS;
+    my_millis = millis()+INTERVAL;
+  }
+  if ((millis()-my_millis)>=INTERVAL) {
+    cnt--;
+    if (cnt>=(NUMLEDS/2)) {
+      pixels.setPixelColor(cnt,0,0,0);
+      pixels.setPixelColor(NUMLEDS-cnt-1,0,0,0);
+      pixels.show();
     }
     else {
-      if ((millis()-t)>=progT[progCnt]) {
-        t = millis();
-        progCnt++;
-        acnt=0;
-        bcnt=0;
-        state=1;
-      }
+      pixels.setPixelColor(cnt,r,g,b);
+      pixels.setPixelColor(NUMLEDS-1-cnt,r,g,b);
+      pixels.show();
     }
-    break;
-  case 7:
-    if ((millis()-t)>=500) {
-      myservo.detach();
-      state++;
-    }
-    break;
-  case 8:
-    if ((millis()-t)>=600) {
-      digitalWrite(LED_PIN, 1);
-      digitalWrite(SERVO_PIN, LOW);
-      state=0;
-    }
-    break;
-  default:
-    state = 0;
-    break;
+    my_millis=millis();
   }
-
-  return state;
+  return cnt;
 }
 
 void setup() 
@@ -168,27 +81,52 @@ void setup()
   initHardware();
   setupWiFi();
   server.begin();
+  pixels.begin();
 }
 
 void loop() 
 {
+  static int do_something = -1;
+  int i;
+  
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client) {
     switch (do_something) {
-
+    case 0:
+      if (unset()==0)
+        do_something = -1;
+      break;
     case 1:
-      if (SetZero()==0)
-        do_something=0;
+      if (unset_set_color(255,0,0)==0)
+        do_something = -1;
       break;
-
     case 2:
-      if (JezisekPrichazi()==0)
-        do_something=0;
+      if (unset_set_color(0,255,0)==0)
+        do_something = -1;
       break;
-
+    case 3:
+      if (unset_set_color(0,0,255)==0)
+        do_something = -1;
+      break;
+    case 4:
+      if (unset_set_color(128,128,0)==0)
+        do_something = -1;
+      break;
+    case 5:
+      if (unset_set_color(128,0,128)==0)
+        do_something = -1;
+      break;
+    case 6:
+      if (unset_set_color(0,128,128)==0)
+        do_something = -1;
+      break;
+    case 7:
+      if (unset_set_color(128,128,128)==0)
+        do_something = -1;
+      break;
     default:
-      do_something=0;
+      do_something=-1;
       break;
     }
     return;
@@ -196,25 +134,35 @@ void loop()
 
   // Read the first line of the request
   String req = client.readStringUntil('\r');
-  Serial.println(req);
+  //Serial.println(req);
   client.flush();
 
   // Match the request
   int val = -1; // We'll use 'val' to keep track of both the
                 // request type (read/set) and value if set.
-  if (req.indexOf("/led/0") != -1)
-    val = 1; // Will write LED high
-  else if (req.indexOf("/led/1") != -1)
-    val = 0; // Will write LED low
-  else if (req.indexOf("/jezisek") != -1)
-    val = -2; // Will print pin reads
-  else if (req.indexOf("/nuluj") != -1)
-    val = -3;
+  if (req.indexOf("/0") != -1)
+    val = 0; // Will clean it
+  else if (req.indexOf("/R") != -1)
+    val = 1; // Will set RED
+  else if (req.indexOf("/G") != -1)
+    val = 2; // Will set GREEN
+  else if (req.indexOf("/B") != -1)
+    val = 3; // Will set BLUE
+  else if (req.indexOf("/Y") != -1)
+    val = 4; // Will set YELLOW
+  else if (req.indexOf("/M") != -1)
+    val = 5; // Will set MAGENTA
+  else if (req.indexOf("/C") != -1)
+    val = 6; // Will set CYAN
+  else if (req.indexOf("/W") != -1)
+    val = 7;
   // Otherwise request will be invalid. We'll say as much in HTML
 
   // Set GPIO5 according to the request
-  if (val >= 0)
-    digitalWrite(LED_PIN, val);
+  if (val > 0)
+    digitalWrite(LED_PIN, 1);
+  else
+    digitalWrite(LED_PIN, 0);
 
   client.flush();
 
@@ -237,49 +185,65 @@ void loop()
   }
   else {
     s += "h1 {font-size: 30px; font-weight: 700; line-height: 1.2; color: #000; padding: 0; margin: 50px 0 0;}\r\n</style>\r\n";
-    s += "<meta http-equiv='refresh' content='2;url=index.html'>\r\n";
+    s += "<meta http-equiv='refresh' content='1;url=index.html'>\r\n";
   }
-  s += "<title>Ježíšek</title>\r\n</head>\r\n<body>\r\n";
+  s += "<title>WowJák</title>\r\n</head>\r\n<body>\r\n";
   s += "<div class='main'>\r\n";
   
   // If we're setting the LED, print out a message saying we did
   if (val >= 0)
   {
-    s += "<h1>Přepínám LEDku na ";
-    s += (val)?"OFF":"ON";
-    s += "</h1>\r\n";
-  }
-  else if (val == -2)
-  { // If we're reading pins, print out those values:
-    if (do_something == 0)
-      s += "<h1>Ježíšek přichází !!!</h1>\r\n";
-    else
-      s += "<h1>Hele, počkej chvilku ...</h1>\r\n";
-  }
-  else if (val == -3)
-  {
-    if (do_something == 0)
-      s += "<h1>Nastavuji nulovou polohu serva</h1>\r\n";
-    else
-      s += "<h1>Hele, počkej chvilku ...</h1>\r\n";
+    if (do_something>=0) {
+      s += "<h1>Hele, počkej chvilku!<h1>/n";
+    }
+    else {
+      s += "<h1>Přepínám WowJák na ";
+      switch(val) {
+        case 0:
+          s += "Vypnuto";
+          break;
+        case 1:
+          s += "Červená";
+          break;
+        case 2:
+          s += "Zelená";
+          break;
+        case 3:
+          s += "Modrá";
+          break;
+        case 4:
+          s += "Žlutá";
+          break;
+        case 5:
+          s += "Purpurová";
+          break;
+        case 6:
+          s += "Azurová";
+          break;
+        case 7:
+          s += "Bílá";
+          break;
+      }
+      s += "</h1>\r\n";
+    }
   }
   else
   {
-    s += "<ul><li><a href='/led/1'>Rozsviť LEDku</a>\r\n<li><a href='/led/0'>Zhasni LEDku</a>\r\n";
-    s += "<li><a href='/nuluj'>Nuluj servo</a>\r\n<li><a href='/jezisek'>JEŽÍŠEK</a></ul>\r\n";
+    s += "<ul><li><a href='/R'>Červená</a>\r\n<li><a href='/G'>Zelená</a>\r\n";
+    s += "<li><a href='/B'>Modrá</a>\r\n<li><a href='/Y'>Žlutá</a>\r\n";
+    s += "<li><a href='/M'>Purpurová</a>\r\n<li><a href='/C'>Azurová</a>\r\n";
+    s += "<li><a href='/W'>Bílá</a></ul>\r\n<li><a href='/0'>Zhasnout</a></ul>\r\n";
   }
   s += "</div>\r\n</body>\r\n</html>\r\n";
 
   // Send the response to the client
   client.print(s);
   delay(1);
-  Serial.println("Client disonnected");
+  //Serial.println("Client disonnected");
 
-  if (do_something == 0) {
-    if (val==-3)
-      do_something=1;
-    else if (val==-2)
-      do_something=2;
+  if (do_something == -1) {
+    if (val>=0)
+      do_something=val;
   }
 
   // The client will actually be disconnected 
@@ -310,13 +274,9 @@ void setupWiFi()
 
 void initHardware()
 {
-  Serial.begin(115200);
+  //Serial.begin(115200);
   //pinMode(DIGITAL_PIN, INPUT_PULLUP);
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
-  // Don't need to set ANALOG_PIN as input, 
-  // that's all it can be.
-  pinMode(SERVO_PIN, OUTPUT);
-  digitalWrite(SERVO_PIN, LOW);
 }
 
