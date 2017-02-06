@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Čtyři tlačítka</title>
+
+    <style>
+    	*, *:before, *:after { 
+    		-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+		html, body {
+			margin: 0; padding: 0; font-size: 16px; line-height: 1.5; font-family: Helvetica, Arial; color: #444; background-color: #ebebeb; min-height: 100%; }
+		.main {
+			padding: 15px; text-align: center; width: 100%; max-width: 420px; margin: 0 auto; }
+		.list {
+			margin: 0; padding: 0; list-style: none; }
+		.list:after {
+			content: ''; display: block; clear: both; }
+		.list li {
+			padding: 0; margin: 0 0 15px; list-style: none; float: left; width: 48%; }
+		.list li:nth-child(even) {
+			float: right; }
+		.list li a {
+			text-decoration: none; display: block; border-radius: 5px; padding: 10px 5px; cursor: pointer; border: 1px solid #333; text-align: center; background-color: #666; color: #fff; font-weight: 700; }
+		.list li a.red {
+			background: Crimson; }
+		.list li a.green {
+			background: LimeGreen; }
+		.list li a.blue {
+			background: RoyalBlue; }
+		.list li a.yellow {
+			background: Gold; color: #333; }
+		.list li a.purple {
+			background: Magenta; }
+		.list li a.cyan {
+			background: Cyan; color: #333; }
+		.list li a.white {
+			background: #fff; color: #333; }
+    </style>
+</head>
+
+<body>
+
+	<div class="main">
+		<ul class="list">
+			<li><a href="/R" class="red">Červená</a></li>
+			<li><a href="/G" class="green">Zelená</a></li>
+			<li><a href="/B" class="blue">Modrá</a></li>
+			<li><a href="/Y" class="yellow">Žlutá</a></li>
+			<li><a href="/M" class="purple">Purpurová</a></li>
+			<li><a href="/C" class="cyan">Azurová</a></li>
+			<li><a href="/W" class="white">Bílá</a></li>
+			<li><a href="/0" class="switch-off">Zhasnout</a></li>
+		</ul>	
+	</div>
+
+</body>
+</html>
